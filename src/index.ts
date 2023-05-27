@@ -528,3 +528,135 @@ type Nullable<T> = {
   [K in keyof T]: T[K] | null;
 };
 // vitu.name = "b";
+
+function aitch<T extends void>(value: T) {
+  return value;
+}
+
+function printName<T>(obj: T) {
+  // console.log(obj.name);
+  let name: keyof T;
+}
+
+// class Entity<K, v> {
+//   constructor(public);
+// }
+
+function addNumbers<T extends number>(a: T, b: T) {
+  return a + b;
+}
+
+// DECORATORS
+type ComponentOptions = {
+  selector: string;
+};
+
+function Component(options: ComponentOptions) {
+  return (constructor: Function) => {
+    console.log("Component decorator called");
+    constructor.prototype.options = options;
+    constructor.prototype.uniqueId = Date.now();
+    constructor.prototype.insertInDOM = () => {
+      console.log("Inserting the component in the DOm");
+    };
+  };
+}
+
+function Pipe(constructor: Function) {
+  console.log("Pipe decorator called");
+  constructor.prototype.pipe = true;
+}
+// DECORATOR COMPOSITION
+@Component({ selector: "#my-profile" })
+@Pipe
+class ProfileComponent {}
+// METHOD DECORATORS
+function Log(target: any, methodName: string, descriptor: PropertyDescriptor) {
+  const original = descriptor.value as Function;
+  descriptor.value = function (...args: any) {
+    console.log("Before");
+    original.call(this, ...args);
+    console.log("After");
+  };
+}
+
+class Pers {
+  @Log
+  say(message: string) {
+    console.log("Person says" + message);
+  }
+}
+
+// ACCESSOR DECORATORS
+function Capitalize(
+  target: any,
+  methodName: string,
+  descriptor: PropertyDescriptor
+) {
+  const original = descriptor.get;
+  descriptor.get = function () {
+    const result = original?.call(this);
+    return typeof result === "string" ? result.toUpperCase() : result;
+  };
+}
+
+class Per {
+  constructor(public firstName: string, public lastName: string) {}
+
+  @Capitalize
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+}
+
+let person = new Person("Wesley", "Waka");
+console.log(person.fullName);
+
+// property decorators
+function MinLength(length: number) {
+  return (target: any, propertyName: string) => {
+    let value: string;
+
+    const descriptor: PropertyDescriptor = {
+      get() {
+        return value;
+      },
+      set(newValue: string) {
+        if (newValue.length < length)
+          throw new Error(`${propertyName} should be atleat ${length} long`);
+      },
+    };
+
+    Object.defineProperty(target, propertyName, descriptor);
+  };
+}
+
+class websiteUser {
+  @MinLength(4)
+  password: string;
+
+  constructor(password: string) {
+    this.password = password;
+  }
+}
+
+// parameter decorator
+type WatchedParameter = {
+  methodName: string;
+  parameterIndex: number;
+};
+
+const watchedParameters: WatchedParameter[] = [];
+
+function Watch(target: any, methodName: string, parameterIndex: number) {
+  watchedParameters.push({
+    methodName,
+    parameterIndex,
+  });
+}
+
+class Vehicle {
+  move(@Watch speed: number) {}
+}
+
+console.log(watchedParameters);
