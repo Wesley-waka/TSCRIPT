@@ -1,3 +1,7 @@
+import * as _ from "lodash";
+
+_.clone([1, 2, 3, 4]);
+
 let age: number = 20;
 if (age < 50) age += 10;
 console.log(age);
@@ -95,8 +99,8 @@ let customer = getCustomer(0);
 // optional property access operator
 console.log(customer?.birthday?.getFullYear());
 
-let log: any = null;
-log?.("a");
+// let log: any = null;
+// log?.("a");
 
 let speed: any | null = null;
 let ride = {
@@ -546,7 +550,7 @@ function addNumbers<T extends number>(a: T, b: T) {
   return a + b;
 }
 
-// DECORATORS
+// // DECORATORS
 type ComponentOptions = {
   selector: string;
 };
@@ -609,7 +613,7 @@ class Per {
   }
 }
 
-let person = new Person("Wesley", "Waka");
+let person = new Per("Wesley", "Waka");
 console.log(person.fullName);
 
 // property decorators
@@ -660,3 +664,63 @@ class Vehicle {
 }
 
 console.log(watchedParameters);
+
+// testing decorators
+
+function log(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  const originalMethod = descriptor.value;
+
+  descriptor.value = function (...args: any[]) {
+    console.log(`Executing method ${propertyKey} with arguments: ${args}`);
+    const result = originalMethod.apply(this, args);
+    return result;
+  };
+
+  return descriptor;
+}
+
+class Example {
+  @log
+  greet(name: string) {
+    console.log(`Hello, ${name}!`);
+  }
+}
+
+const example = new Example();
+example.greet("Alice");
+
+function uppercase(target: any, propertyName: string) {
+  let value: string;
+
+  const getter = function () {
+    return value;
+  };
+
+  const setter = function (newValue: string) {
+    value = newValue.toUpperCase();
+  };
+
+  Object.defineProperty(target, propertyName, {
+    get: getter,
+    set: setter,
+    enumerable: true,
+    configurable: true,
+  });
+}
+
+class Kitu {
+  @uppercase
+  name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+
+const kitu = new Kitu("Jane");
+console.log(kitu.name); // Output: "ALICE"
+
+// export { Circle } from './shapes';
+
+// let circle = new Circle(1);
+// console.log(circle.radius);

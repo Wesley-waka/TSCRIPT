@@ -1,103 +1,149 @@
 "use strict";
-var _a;
-let age = 20;
-if (age < 50)
-    age += 10;
-console.log(age);
-let sales = 12345;
-let course = "Course";
-let numbers = [1.2, 2, 3, 4, 5];
-let letters = ["a", "b", "c"];
-let statements = [true, false, false];
-let mySize = 2;
-console.log(mySize);
-function calculateTax(income, taxYear = 2022) {
-    if ((taxYear || 2022) < 50000)
-        return income * 1.2;
-    return income * 1.3;
-}
-console.log(calculateTax(60000, 2023));
-let employee = {
-    id: 1,
-    name: "Wesley",
-    retire: (date) => {
-        console.log(date);
-    },
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-function kgToLbs(weight) {
-    if (typeof weight === "number")
-        return weight * 2.2;
-    else
-        return parseInt(weight) * 2.2;
-}
-kgToLbs(10);
-kgToLbs("10kg");
-let textBox = {
-    drag: () => { },
-    resize: () => { },
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
 };
-let quantity = 100;
-function greet(name) {
-    if (name)
-        console.log(name.toUpperCase());
-    else
-        console.log("Hola!");
+function Component(options) {
+    return (constructor) => {
+        console.log("Component decorator called");
+        constructor.prototype.options = options;
+        constructor.prototype.uniqueId = Date.now();
+        constructor.prototype.insertInDOM = () => {
+            console.log("Inserting the component in the DOm");
+        };
+    };
 }
-greet(undefined);
-function getCustomer(id) {
-    return id == 0 ? null : { birthday: new Date() };
+function Pipe(constructor) {
+    console.log("Pipe decorator called");
+    constructor.prototype.pipe = true;
 }
-let customer = getCustomer(0);
-console.log((_a = customer === null || customer === void 0 ? void 0 : customer.birthday) === null || _a === void 0 ? void 0 : _a.getFullYear());
-let log = null;
-log === null || log === void 0 ? void 0 : log("a");
-let speed = null;
-let ride = {
-    speed: speed !== null && speed !== void 0 ? speed : 30,
+let ProfileComponent = class ProfileComponent {
 };
-console.log((ride.speed = 2));
-const wesley = "Monday";
-console.log();
-const selectedDay = "Monday";
-class Account {
-    constructor(id, owner, _balance) {
-        this.id = id;
-        this.owner = owner;
-        this._balance = _balance;
-    }
-    deposit(amount) {
-        if (amount <= 0)
-            throw new Error("Invalid amount");
-        this._balance += amount;
-    }
-    get balance() {
-        return this._balance;
+ProfileComponent = __decorate([
+    Component({ selector: "#my-profile" }),
+    Pipe
+], ProfileComponent);
+function Log(target, methodName, descriptor) {
+    const original = descriptor.value;
+    descriptor.value = function (...args) {
+        console.log("Before");
+        original.call(this, ...args);
+        console.log("After");
+    };
+}
+class Pers {
+    say(message) {
+        console.log("Person says" + message);
     }
 }
-let account = new Account(1, "Mosh", 0);
-console.log(account.deposit(100));
-console.log(account instanceof Account);
-class SeatAssignment {
+__decorate([
+    Log
+], Pers.prototype, "say", null);
+function Capitalize(target, methodName, descriptor) {
+    const original = descriptor.get;
+    descriptor.get = function () {
+        const result = original === null || original === void 0 ? void 0 : original.call(this);
+        return typeof result === "string" ? result.toUpperCase() : result;
+    };
 }
-let seats = new SeatAssignment();
-seats.A1 = "Mosh";
-seats.A2 = "Wesley";
-console.log(typeof seats);
-class Ride {
-    start() {
-        Ride._activeRides++;
+class Per {
+    constructor(firstName, lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
-    stop() {
-        Ride._activeRides--;
-    }
-    static get activeRides() {
-        return Ride._activeRides;
+    get fullName() {
+        return `${this.firstName} ${this.lastName}`;
     }
 }
-Ride._activeRides = 0;
-let ride1 = new Ride();
-ride1.start();
-let ride2 = new Ride();
-ride1.start();
-console.log(Ride.activeRides);
+__decorate([
+    Capitalize
+], Per.prototype, "fullName", null);
+let person = new Per("Wesley", "Waka");
+console.log(person.fullName);
+function MinLength(length) {
+    return (target, propertyName) => {
+        let value;
+        const descriptor = {
+            get() {
+                return value;
+            },
+            set(newValue) {
+                if (newValue.length < length)
+                    throw new Error(`${propertyName} should be atleat ${length} long`);
+            },
+        };
+        Object.defineProperty(target, propertyName, descriptor);
+    };
+}
+class websiteUser {
+    constructor(password) {
+        this.password = password;
+    }
+}
+__decorate([
+    MinLength(4)
+], websiteUser.prototype, "password", void 0);
+const watchedParameters = [];
+function Watch(target, methodName, parameterIndex) {
+    watchedParameters.push({
+        methodName,
+        parameterIndex,
+    });
+}
+class Vehicle {
+    move(speed) { }
+}
+__decorate([
+    __param(0, Watch)
+], Vehicle.prototype, "move", null);
+console.log(watchedParameters);
+function log(target, propertyKey, descriptor) {
+    const originalMethod = descriptor.value;
+    descriptor.value = function (...args) {
+        console.log(`Executing method ${propertyKey} with arguments: ${args}`);
+        const result = originalMethod.apply(this, args);
+        return result;
+    };
+    return descriptor;
+}
+class Example {
+    greet(name) {
+        console.log(`Hello, ${name}!`);
+    }
+}
+__decorate([
+    log
+], Example.prototype, "greet", null);
+const example = new Example();
+example.greet("Alice");
+function uppercase(target, propertyName) {
+    let value;
+    const getter = function () {
+        return value;
+    };
+    const setter = function (newValue) {
+        value = newValue.toUpperCase();
+    };
+    Object.defineProperty(target, propertyName, {
+        get: getter,
+        set: setter,
+        enumerable: true,
+        configurable: true,
+    });
+}
+class Kitu {
+    constructor(name) {
+        this.name = name;
+    }
+}
+__decorate([
+    uppercase
+], Kitu.prototype, "name", void 0);
+const kitu = new Kitu("Jane");
+console.log(kitu.name);
 //# sourceMappingURL=index.js.map
